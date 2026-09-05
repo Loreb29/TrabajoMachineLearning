@@ -47,10 +47,18 @@ Para controlar las soluciones que incumplen esta restricción se implementó una
 
 Fitness = Retorno − Factor de penalización × Exceso de presupuesto
 
-### Penalización fuerte
+### Penalización fuerte (factor = 10)
 
-Con un factor de penalización alto, las soluciones que superan el presupuesto reciben una reducción considerable en su aptitud. Esto provoca que tengan una menor probabilidad de ser seleccionadas para reproducirse y, por lo tanto, disminuye su supervivencia durante las siguientes generaciones.
+Acá el castigo es grande. En la simulación, el mejor individuo de cada generación siempre terminó siendo uno que sí cumplía el presupuesto (238000 de fitness, estable desde la generación 6 en adelante).
 
-### Penalización suave
+Sí seguían apareciendo individuos que se pasaban del presupuesto (por la mutación), entre 6 y 13 por generación. Pero como el castigo era tan fuerte, esos individuos quedaban con fitness muy bajo. Entonces casi no los elegía el torneo para reproducirse, y con el tiempo se iban quedando atrás.
 
-Con un factor de penalización menor, las soluciones que exceden el presupuesto reciben una reducción más pequeña en su fitness. Por esta razón, algunos individuos no factibles pueden sobrevivir durante varias generaciones.
+En pocas palabras: con penalización alta, las soluciones malas mueren rápido y no logran pasar a las siguientes generaciones.
+
+### Penalización suave (factor = 2)
+
+Acá el castigo es chiquito. En la simulación, el mejor individuo de cada generación fue uno que sí se pasaba del presupuesto, y aun así tenía mejor fitness (245000) que cualquier solución que sí cumplía.
+
+Esto pasó porque el castigo de 2 no alcanzaba a bajarle tanto el puntaje. Entonces le seguía convieniendo tener más retorno aunque se pasara un poco del presupuesto.
+
+Por esta razón, en casi todas las generaciones había entre 15 y 23 individuos que no cumplían el presupuesto, y no bajaba con el tiempo como en el otro caso. O sea que esos individuos "malos" lograban sobrevivir varias generaciones sin problema.
