@@ -196,11 +196,46 @@ class AlgoritmoGenetico:
             # Se combinan los segmentos de los padres para formar los hijos.
             child1 = parent1[:point] + parent2[point:]
             child2 = parent2[:point] + parent1[point:]
+            print("Hijos ")
+            print(child1)
+            print(child2)
             return child1, child2
         else:
             # Si no hay cruzamiento, los hijos son copias idénticas (deep copy) de los padres.
             return copy.deepcopy(parent1), copy.deepcopy(parent2)
+            
+    def _crossover_two_point(self, parent1: list[int], parent2: list[int]) -> tuple[list[int], list[int]]:
+        #Se sigue usando probabilidad para calcular si hay cruzamiento o no
+        if random.random() < self.pc:
+            # Dos puntos de cruzamiento aleatorios
+            point = random.randint(1, self.chromosome_length - 1)
+            point2 = random.randint(1, self.chromosome_length - 1)
+            #Si son el mismo numero, se recalculará hasta que sean distintos
+            if point==point2:
+                while point==point2:
+                    point2 = random.randint(1, self.chromosome_length - 1)
 
+            # Dependiendo de si uno es mayor que otro, cambia el orden de mezcla
+            if point<point2:
+                child1 = parent1[:point] + parent2[point:point2] + parent1[point2:]
+                child2 = parent2[:point] + parent1[point:point2] + parent1[point2:]
+            else:
+                child1 = parent1[:point2] + parent2[point2:point] + parent1[point:]
+                child2 = parent2[:point2] + parent1[point2:point] + parent1[point:]
+            print("Puntos ")
+            print(point)
+            print(point2)
+            print("PADRES")
+            print(parent1)
+            print(parent2)
+            print("Hijos ")
+            print(child1)
+            print(child2)
+            return child1, child2
+        else:
+            # Si no hay cruzamiento, los hijos son copias idénticas (deep copy) de los padres.
+            return copy.deepcopy(parent1), copy.deepcopy(parent2)
+            
     def _mutate_flip_bit(self, chromosome: list[int]) -> list[int]:
         """
         Realiza la mutación bit a bit en un cromosoma.
@@ -299,7 +334,7 @@ class AlgoritmoGenetico:
                 parent1 = mating_pool[i]
                 parent2 = mating_pool[i + 1]
 
-                child1, child2 = self._crossover_one_point(parent1, parent2) # Aplicar cruzamiento.
+                child1, child2 = self._crossover_two_point(parent1, parent2) # Aplicar cruzamiento.
 
                 child1 = self._mutate_flip_bit(child1) # Aplicar mutación al primer hijo.
                 child2 = self._mutate_flip_bit(child2) # Aplicar mutación al segundo hijo.
@@ -377,6 +412,7 @@ PC_KNAPSACK = 0.8 # Probabilidad de cruzamiento del 80%.
 PM_KNAPSACK = 0.01 # Probabilidad de mutación del 1% por bit.
 NUM_GENERATIONS_KNAPSACK = 100 # Número total de generaciones a ejecutar.
 
+print("\n--- Ejecutando AG para el Problema de la Mochila ---")
 # Inicialización de la instancia del Algoritmo Genético con los parámetros definidos.
 knapsack_ga = AlgoritmoGenetico(
     population_size=POP_SIZE_KNAPSACK,
@@ -395,108 +431,12 @@ final_best_genotype_knapsack, final_best_fitness_knapsack = knapsack_ga.run(NUM_
 # Decodificar el mejor genotipo encontrado para obtener el fenotipo (peso, valor e ítems seleccionados).
 final_best_phenotype_knapsack = decode_knapsack(final_best_genotype_knapsack)
 
+print(f"\n--- Resultados Finales Problema de la Mochila ---")
+print(f"Mejor Genotipo: {''.join(map(str, final_best_genotype_knapsack))}")
+print(f"Mejor Fitness (Valor Total): {final_best_fitness_knapsack:.2f}")
+print(f"Peso Total: {final_best_phenotype_knapsack['total_weight']}")
+print(f"Capacidad Máxima de la Mochila: {MAX_CAPACITY}")
+
 # Obtener los nombres de los ítems seleccionados para una salida más legible.
 selected_items = [ITEMS[i]['name'] for i in final_best_phenotype_knapsack['selected_items_indices']]
-
-
-# --- Ejercicio 2: Selección de Personal Estricta ---
-# Se tienen 12 candidatos, cada uno con una puntuación de "Habilidad Técnica".
-# Restricción: el equipo debe estar conformado por EXACTAMENTE 5 personas.
-# La aptitud debe penalizar cualquier cromosoma que no sume exactamente 5 bits encendidos.
-
-# Definición de los candidatos disponibles, cada uno con su puntuación de habilidad técnica.
-CANDIDATOS = [
-    {'name': 'Candidato_1', 'habilidad': 8},
-    {'name': 'Candidato_2', 'habilidad': 5},
-    {'name': 'Candidato_3', 'habilidad': 9},
-    {'name': 'Candidato_4', 'habilidad': 3},
-    {'name': 'Candidato_5', 'habilidad': 7},
-    {'name': 'Candidato_6', 'habilidad': 6},
-    {'name': 'Candidato_7', 'habilidad': 10},
-    {'name': 'Candidato_8', 'habilidad': 4},
-    {'name': 'Candidato_9', 'habilidad': 9},
-    {'name': 'Candidato_10', 'habilidad': 2},
-    {'name': 'Candidato_11', 'habilidad': 6},
-    {'name': 'Candidato_12', 'habilidad': 8},
-]
-TEAM_SIZE = 5 # Restricción estricta: el equipo debe tener exactamente 5 integrantes.
-PENALTY_FACTOR_PERSONNEL = 10 # Factor de penalización por cada persona de más o de menos respecto al TEAM_SIZE.
-
-def decode_personnel(genotype: list[int]) -> dict:
-    """
-    Decodifica un genotipo (selección de candidatos) en la habilidad técnica total del equipo
-    y la cantidad de candidatos seleccionados.
-    Corresponde a la función e_tilde: S -> X.
-    El genotipo es una cadena binaria donde cada bit indica si un candidato (según su índice)
-    fue seleccionado (1) o no (0) para el equipo.
-    """
-    total_habilidad = 0
-    num_seleccionados = 0
-    selected_candidates_indices = [] # Almacena los índices de los candidatos seleccionados.
-    for i, bit in enumerate(genotype):
-        if bit == 1:
-            # Si el bit es 1, el candidato se incluye en el equipo.
-            total_habilidad += CANDIDATOS[i]['habilidad']
-            num_seleccionados += 1
-            selected_candidates_indices.append(i)
-    return {
-        'total_habilidad': total_habilidad,
-        'num_seleccionados': num_seleccionados,
-        'selected_candidates_indices': selected_candidates_indices
-    }
-
-def fitness_personnel(phenotype: dict) -> float:
-    """
-    Calcula la aptitud para el problema de Selección de Personal Estricta.
-    El fitness es la suma de habilidad técnica del equipo, pero se aplica una penalización
-    fuerte si el número de integrantes seleccionados no es EXACTAMENTE igual a TEAM_SIZE (5),
-    ya sea por exceso o por defecto.
-    """
-    total_habilidad = phenotype['total_habilidad']
-    num_seleccionados = phenotype['num_seleccionados']
-
-    diferencia = abs(num_seleccionados - TEAM_SIZE)
-
-    if diferencia > 0:
-        # Penalización por no cumplir con exactamente TEAM_SIZE integrantes.
-        # La aptitud disminuye proporcionalmente a la diferencia respecto al tamaño requerido.
-        return total_habilidad - PENALTY_FACTOR_PERSONNEL * diferencia
-    else:
-        # Si el equipo tiene exactamente TEAM_SIZE integrantes, la aptitud es la habilidad total.
-        return float(total_habilidad)
-
-# --- Parámetros del AG para el Problema de Selección de Personal ---
-POP_SIZE_PERSONNEL = 50 # Tamaño de la población: 50 individuos.
-CHROM_LEN_PERSONNEL = len(CANDIDATOS) # Longitud del cromosoma: un bit por cada candidato disponible.
-PC_PERSONNEL = 0.8 # Probabilidad de cruzamiento del 80%.
-PM_PERSONNEL = 0.01 # Probabilidad de mutación del 1% por bit.
-NUM_GENERATIONS_PERSONNEL = 100 # Número total de generaciones a ejecutar.
-
-print("\n--- Ejecutando AG para el Problema de Selección de Personal Estricta ---")
-# Inicialización de la instancia del Algoritmo Genético con los parámetros definidos.
-personnel_ga = AlgoritmoGenetico(
-    population_size=POP_SIZE_PERSONNEL,
-    chromosome_length=CHROM_LEN_PERSONNEL,
-    pc=PC_PERSONNEL,
-    pm=PM_PERSONNEL,
-    fitness_func=fitness_personnel,
-    decode_func=decode_personnel,
-    selection_method='tournament', # Usamos selección por torneo para este caso.
-    tournament_size=5, # Tamaño del torneo para la selección.
-    elitism=True, # Elitismo activado.
-)
-
-# Ejecutar el Algoritmo Genético para el número especificado de generaciones.
-final_best_genotype_personnel, final_best_fitness_personnel = personnel_ga.run(NUM_GENERATIONS_PERSONNEL)
-# Decodificar el mejor genotipo encontrado para obtener el fenotipo (habilidad total y candidatos seleccionados).
-final_best_phenotype_personnel = decode_personnel(final_best_genotype_personnel)
-
-print(f"\n--- Resultados Finales Selección de Personal Estricta ---")
-print(f"Mejor Genotipo: {''.join(map(str, final_best_genotype_personnel))}")
-print(f"Mejor Fitness (Habilidad Técnica Total): {final_best_fitness_personnel:.2f}")
-print(f"Número de Integrantes Seleccionados: {final_best_phenotype_personnel['num_seleccionados']}")
-print(f"Tamaño de Equipo Requerido: {TEAM_SIZE}")
-
-# Obtener los nombres de los candidatos seleccionados para una salida más legible.
-selected_candidates = [CANDIDATOS[i]['name'] for i in final_best_phenotype_personnel['selected_candidates_indices']]
-print(f"Candidatos Seleccionados: {', '.join(selected_candidates)}")
+print(f"Ítems Seleccionados: {', '.join(selected_items)}")
