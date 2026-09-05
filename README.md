@@ -3,7 +3,7 @@
 ## Ejercicio 1
 
 ## Ejercicio 2 - Selección de Personal Estricta
-En este ejercicio se realizo el uso de la estructura ya creada por el ejercicio de la mochila, sin necesidad de hacer cambios al código fuente del algoritmo genético, aunque con una función de aptitud propia, bajo el funcionamiento siempre se eligen 5 candidatos finales.
+En este ejercicio se realizo el uso de la estructura ya creada por el ejercicio de la mochila, sin necesidad de hacer cambios al código fuente del algoritmo genético, aunque con una función de aptitud propia, bajo el funcionamiento siempre se eligen 5 candidatos finales de una población base de 12, la convergencia siempre suele ser de alrededor de 44 de aptitud.
 
 ## Ejercicio 3 - Operador de Cruzamiento de Dos Puntos
 En este ejercicio se uso el ejemplo del problema de la mochila como base, y allí se creo la función ```python _crossover_two_point```, la cuál permite el cruzamiento de 2 puntos, esto lo hace mediante 2 numeros aleatorios, con un rango de 1 a la longitud del cromosoma-1, en el caso de que los números sean iguales, se itera hasta que se arregle esto, dependiendo de cual de los 2 puntos es mayor se usa una logica de mezcla levemente distinta (cambiando el orden), la mezcla realizada es una intercalada, donde el hijo toma la primera parte del padre, la segunda de la madre y la tercera del padre, ejemplo:
@@ -14,9 +14,9 @@ Padre: 100|101|1
 
 Madre: 011|001|0
 
-Hijo1:100|001|1
+Hijo1: 100|001|1
 
-Hijo2:011|101|0
+Hijo2: 011|101|0
 
 ```python
     def _crossover_two_point(self, parent1: list[int], parent2: list[int]) -> tuple[list[int], list[int]]:
