@@ -466,7 +466,7 @@ def fitness_personnel(phenotype: dict) -> float:
         return float(total_habilidad)
 
 # --- Parámetros del AG para el Problema de Selección de Personal ---
-POP_SIZE_PERSONNEL = 50 # Tamaño de la población: 50 individuos.
+POP_SIZE_PERSONNEL = 12 # Tamaño de la población: 50 individuos.
 CHROM_LEN_PERSONNEL = len(CANDIDATOS) # Longitud del cromosoma: un bit por cada candidato disponible.
 PC_PERSONNEL = 0.8 # Probabilidad de cruzamiento del 80%.
 PM_PERSONNEL = 0.01 # Probabilidad de mutación del 1% por bit.
