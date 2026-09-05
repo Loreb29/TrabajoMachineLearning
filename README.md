@@ -9,6 +9,20 @@ En este ejercicio se realizo el uso de la estructura ya creada por el ejercicio 
 Se utilizó un algoritmo genético para seleccionar un portafolio de inversiones mediante un genotipo binario. Cada posición del cromosoma representa un proyecto, donde 1 indica que el proyecto es seleccionado y 0 que no lo es.
 
 Su objetivo es maximizar el retorno esperado de las inversiones, teniendo como restricción que el costo total del protafolio no puede superar el presupuesto máximo establecido.
+
+Para controlar las soluciones que incumplen esta restricción se implementó una función de penalización. Cuando el costo total supera el presupuesto, se resta una cantidad proporcional al exceso:
+
+Fitness = Retorno − Factor de penalización × Exceso de presupuesto
+
+Penalización fuerte
+
+Con un factor de penalización alto, las soluciones que superan el presupuesto reciben una reducción considerable en su aptitud. Esto provoca que tengan una menor probabilidad de ser seleccionadas para reproducirse y, por lo tanto, disminuye su supervivencia durante las siguientes generaciones.
+
+Penalización suave
+
+Con un factor de penalización menor, las soluciones que exceden el presupuesto reciben una reducción más pequeña en su fitness. Por esta razón, algunos individuos no factibles pueden sobrevivir durante varias generaciones.
+
+
 ## Ejercicio 3 - Operador de Cruzamiento de Dos Puntos
 En este ejercicio se uso el ejemplo del problema de la mochila como base, y allí se creo la función ```python _crossover_two_point```, la cuál permite el cruzamiento de 2 puntos, esto lo hace mediante 2 numeros aleatorios, con un rango de 1 a la longitud del cromosoma-1, en el caso de que los números sean iguales, se itera hasta que se arregle esto, dependiendo de cual de los 2 puntos es mayor se usa una logica de mezcla levemente distinta (cambiando el orden), la mezcla realizada es una intercalada, donde el hijo toma la primera parte del padre, la segunda de la madre y la tercera del padre, ejemplo:
 
