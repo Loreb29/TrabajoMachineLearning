@@ -47,10 +47,10 @@ Para controlar las soluciones que incumplen esta restricción se implementó una
 
 Fitness = Retorno − Factor de penalización × Exceso de presupuesto
 
-Penalización fuerte
+### Penalización fuerte
 
 Con un factor de penalización alto, las soluciones que superan el presupuesto reciben una reducción considerable en su aptitud. Esto provoca que tengan una menor probabilidad de ser seleccionadas para reproducirse y, por lo tanto, disminuye su supervivencia durante las siguientes generaciones.
 
-Penalización suave
+### Penalización suave
 
 Con un factor de penalización menor, las soluciones que exceden el presupuesto reciben una reducción más pequeña en su fitness. Por esta razón, algunos individuos no factibles pueden sobrevivir durante varias generaciones.
